@@ -4,33 +4,36 @@ from transformers import AutoTokenizer
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, split, max_seq_len):
+    def __init__(self, split, max_seq_len, balanced=False):
         super(Dataset, self).__init__()
+
         with open(f'data/{split}.csv') as fp:
             reader = csv.reader(fp, delimiter=',')
             lines = [row for row in reader]
-        print(len(lines))
+
         data = {'text': [], 'sentiment': [], 'time': [], 'age': [], 'country': []}
         neutral, positive, negative = 0, 0, 0
+
         if split == 'train':
             for line in lines[1:]:
-                if line[3] == 'neutral':
-                    if neutral == 6000:
-                        continue
-                    else:
-                        neutral += 1
+                if balanced:
+                    if line[3] == 'neutral':
+                        if neutral == 6000:
+                            continue
+                        else:
+                            neutral += 1
 
-                if line[3] == 'positive':
-                    if positive == 6000:
-                        continue
-                    else:
-                        positive += 1
+                    if line[3] == 'positive':
+                        if positive == 6000:
+                            continue
+                        else:
+                            positive += 1
 
-                if line[3] == 'negative':
-                    if negative == 6000:
-                        continue
-                    else:
-                        negative += 1
+                    if line[3] == 'negative':
+                        if negative == 6000:
+                            continue
+                        else:
+                            negative += 1
 
                 data['text'].append(line[1])
                 data['sentiment'].append(line[3])
@@ -39,23 +42,24 @@ class Dataset(torch.utils.data.Dataset):
                 data['country'].append(line[6])
         else:
             for line in lines[1:]:
-                if line[2] == 'neutral':
-                    if neutral == 1000:
-                        continue
-                    else:
-                        neutral += 1
+                if balanced:
+                    if line[2] == 'neutral':
+                        if neutral == 1000:
+                            continue
+                        else:
+                            neutral += 1
 
-                if line[2] == 'positive':
-                    if positive == 1000:
-                        continue
-                    else:
-                        positive += 1
+                    if line[2] == 'positive':
+                        if positive == 1000:
+                            continue
+                        else:
+                            positive += 1
 
-                if line[2] == 'negative':
-                    if negative == 1000:
-                        continue
-                    else:
-                        negative += 1
+                    if line[2] == 'negative':
+                        if negative == 1000:
+                            continue
+                        else:
+                            negative += 1
 
                 if line[2] == '':
                     continue
@@ -67,13 +71,11 @@ class Dataset(torch.utils.data.Dataset):
                 data['age'].append(line[4])
                 data['country'].append(line[5])
 
-
         self.data = data
         print(len(self.data['text']))
         self.max_seq_len = max_seq_len
         self.label = {'neutral': 0, 'positive': 1, 'negative': 2}
         self.tokenizer = AutoTokenizer.from_pretrained('bert-base-cased', model_max_length=max_seq_len)
-        # print(f'vocab size: {self.tokenizer.vocab_size}')
 
     def __len__(self):
         return len(self.data['text'])

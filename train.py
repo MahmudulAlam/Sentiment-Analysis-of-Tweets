@@ -83,6 +83,6 @@ for epoch in range(1, epochs + 1):
     # torch.save(network.state_dict(), f'./weights/model_{epoch}.h5')
     scheduler.step()
 
-torch.save(network.state_dict(), f'./weights/model_balanced.h5')
-save_history('./weights/history_balanced.csv', history, mode='w')
+torch.save(network.state_dict(), f'./weights/model.h5')
+save_history('./weights/history.csv', history, mode='w')
 print('All Done!')
